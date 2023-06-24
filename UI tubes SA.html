@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Visualisasi Graf - TUBES SA</title>
+  <style>
+    #graph-container {
+      width: 800px;
+      height: 600px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      position: relative;
+    }
+    .node {
+      width: 40px;
+      height: 40px;
+      background-color: #2196F3;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      font-weight: bold;
+      color: white;
+    }
+    .edge {
+      position: absolute;
+      border-bottom: 2px solid #ccc;
+    }
+    .edge-label {
+      position: absolute;
+      font-size: 12px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Visualisasi Graf</h1>
+  <div>
+    <label for="node-input">Input Node:</label>
+    <input type="text" id="node-input">
+    <button onclick="addNode()">Add Node</button>
+  </div>
+  <div>
+    <label for="edge-source-input">Source Node:</label>
+    <input type="text" id="edge-source-input">
+    <label for="edge-target-input">Target Node:</label>
+    <input type="text" id="edge-target-input">
+    <label for="edge-weight-input">Edge Weight:</label>
+    <input type="number" id="edge-weight-input">
+    <button onclick="addEdge()">Add Edge</button>
+  </div>
+  <div id="graph-container"></div>
+
+  <script>
+    var nodes = [];
+    var edges = [];
+
+    function addNode() {
+      var nodeInput = document.getElementById("node-input");
+      var nodeName = nodeInput.value.trim();
+      if (nodeName !== "") {
+        nodes.push(nodeName);
+        nodeInput.value = "";
+        drawGraph();
+      }
+    }
+
+    function addEdge() {
+      var edgeSourceInput = document.getElementById("edge-source-input");
+      var edgeTargetInput = document.getElementById("edge-target-input");
+      var edgeWeightInput = document.getElementById("edge-weight-input");
+      var sourceNode = edgeSourceInput.value.trim();
+      var targetNode = edgeTargetInput.value.trim();
+      var edgeWeight = parseInt(edgeWeightInput.value);
+      if (sourceNode !== "" && targetNode !== "" && !isNaN(edgeWeight)) {
+        edges.push({ source: sourceNode, target: targetNode, weight: edgeWeight });
+        edgeSourceInput.value = "";
+        edgeTargetInput.value = "";
+        edgeWeightInput.value = "";
+        drawGraph();
+      }
+    }
+
+    function drawGraph() {
+      var graphContainer = document.getElementById("graph-container");
+      graphContainer.innerHTML = "";
+
+      nodes.forEach(function(node, index) {
+        var nodeElement = document.createElement("div");
+        nodeElement.classList.add("node");
+        nodeElement.style.top = Math.random() * 500 + "px";
+        nodeElement.style.left = Math.random() * 700 + "px";
+        nodeElement.textContent = node;
+        graphContainer.appendChild(nodeElement);
+      });
+
+      edges.forEach(function(edge) {
+        var sourceNodeIndex = nodes.indexOf(edge.source);
+        var targetNodeIndex = nodes.indexOf(edge.target);
+        if (sourceNodeIndex !== -1 && targetNodeIndex !== -1) {
+          var sourceNode = graphContainer.getElementsByClassName("node")[sourceNodeIndex];
+          var targetNode = graphContainer.getElementsByClassName("node")[targetNodeIndex];
+
+          var edgeElement = document.createElement("div");
+          edgeElement.classList.add("edge");
+          edgeElement.style.top = Math.min(sourceNode.offsetTop, targetNode.offsetTop) + "px";
+          edgeElement.style.left = Math.min(sourceNode.offsetLeft, targetNode.offsetLeft) + "px";
+          edgeElement.style.width = Math.abs(sourceNode.offsetLeft - targetNode.offsetLeft) + "px";
+          if (sourceNode.offsetTop === targetNode.offsetTop) {
+            edgeElement.style.transform = "rotate(0)";
+          } else {
+            var angle = Math.atan((sourceNode.offsetTop - targetNode.offsetTop) / (sourceNode.offsetLeft - targetNode.offsetLeft));
+            edgeElement.style.transform = "rotate(" + angle + "rad)";
+          }
+
+          var edgeLabelElement = document.createElement("div");
+          edgeLabelElement.classList.add("edge-label");
+          edgeLabelElement.style.top = (Math.min(sourceNode.offsetTop, targetNode.offsetTop) + 10) + "px";
+          edgeLabelElement.style.left = (Math.min(sourceNode.offsetLeft, targetNode.offsetLeft) + (Math.abs(sourceNode.offsetLeft - targetNode.offsetLeft) / 2) - 10) + "px";
+          edgeLabelElement.textContent = edge.weight.toString();
+          
+          graphContainer.appendChild(edgeElement);
+          graphContainer.appendChild(edgeLabelElement);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
